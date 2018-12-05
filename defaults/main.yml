@@ -1,0 +1,6 @@
+---
+# defaults file for nodejs-role
+nodejs_conf:
+  version: '8.12.0'
+  node_packages:
+    - yarn

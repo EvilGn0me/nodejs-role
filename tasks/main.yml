@@ -1,0 +1,33 @@
+---
+# tasks file for nodejs-role
+- name: create dirs
+  file:
+    path: '{{ item }}'
+    state: directory
+    owner: root
+    group: root
+  with_items:
+    - '{{ nodejs.installdir }}'
+
+- name: download nodejs
+  unarchive:
+    src: '{{ nodejs.download_url }}'
+    dest: '{{ nodejs.installdir }}'
+    creates: '{{ nodejs.installdir }}/bin/node'
+    extra_opts: [--strip-components=1]
+    remote_src: yes
+
+- name: manage nodejs alternatives
+  alternatives:
+    name: nodejs
+    link: '{{ nodejs.noderoot }}'
+    path: '{{ nodejs.installdir }}'
+
+- name: add node path
+  template:
+    src: templates/nodejs.sh
+    dest: /etc/profile.d/nodejs.sh
+
+- name: install nodejs global packages
+  shell: bash -lc 'npm install --global {{ item }}'
+  with_items: '{{ nodejs_conf.node_packages }}'
